@@ -1,19 +1,23 @@
 from __future__ import annotations
 
 import os
+import shlex
 import shutil
 import signal
 import subprocess
 import sys
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+from typing import Any
 
 import pexpect
-import shlex
 
-from shellingham import ShellDetectionFailure, detect_shell
+from shellingham import ShellDetectionFailure
+from shellingham import detect_shell
+
 from poetry.utils._compat import WINDOWS
+
 
 if TYPE_CHECKING:
     from poetry.utils.env import VirtualEnv
@@ -88,7 +92,7 @@ class Shell:
                 args = ["/K", str(activate_path)]
 
             if args:
-                completed_proc = subprocess.run([self.path] + args, check=True)
+                completed_proc = subprocess.run([self.path, *args], check=True)
                 return completed_proc.returncode
             else:
                 return env.execute(self._path)

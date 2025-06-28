@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import os
 import sys
-import pytest
-from pathlib import PurePath, PureWindowsPath
-from unittest.mock import patch, MagicMock
 
-from poetry.utils.shell import Shell
+from pathlib import PurePath
+from pathlib import PureWindowsPath
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
+import pytest
+
 import poetry.utils.shell as shell_module
 
+from poetry.utils.shell import Shell
 
 
 IS_WINDOWS = sys.platform.startswith("win")
@@ -53,7 +57,10 @@ def test_shell_get_raises_on_missing_shell(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.delenv("COMSPEC", raising=False)
     monkeypatch.setattr("os.name", "posix")
 
-    with patch("poetry.utils.shell.detect_shell", side_effect=shell_module.ShellDetectionFailure("Shell not found")):
+    with patch(
+        "poetry.utils.shell.detect_shell",
+        side_effect=shell_module.ShellDetectionFailure("Shell not found"),
+    ):
         Shell._shell = None
         with pytest.raises(RuntimeError, match="Unable to detect the current shell"):
             Shell.get()
@@ -78,7 +85,9 @@ def test_shell_activate_spawn_failure(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @patch("poetry.utils.shell.detect_shell", return_value=("sh", "/bin/sh"))
-def test_detect_shell_fallback_to_sh(mock_detect_shell: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_detect_shell_fallback_to_sh(
+    mock_detect_shell: MagicMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("SHELL", "/bin/sh")
     monkeypatch.delenv("COMSPEC", raising=False)
 
@@ -88,8 +97,13 @@ def test_detect_shell_fallback_to_sh(mock_detect_shell: MagicMock, monkeypatch: 
     assert s.path in ("/bin/sh", "/bin/zsh", "/bin/bash")
 
 
-@patch("poetry.utils.shell.detect_shell", side_effect=shell_module.ShellDetectionFailure("Shell not found"))
-def test_detect_shell_raises_when_env_missing(mock_detect_shell: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+@patch(
+    "poetry.utils.shell.detect_shell",
+    side_effect=shell_module.ShellDetectionFailure("Shell not found"),
+)
+def test_detect_shell_raises_when_env_missing(
+    mock_detect_shell: MagicMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.delenv("SHELL", raising=False)
     monkeypatch.delenv("COMSPEC", raising=False)
     Shell._shell = None
